@@ -20,4 +20,5 @@ def test_remove_user():
 
 def test_remove_unkown_user():
     manager = UserManager()
-    manager.add_users
+    with pytest.raises(ValueError):
+        manager.remove_user("saad")
