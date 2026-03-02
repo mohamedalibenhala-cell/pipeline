@@ -1,6 +1,8 @@
 class UserManager:
+
     def __init__(self):
         self.users = []
+
     def add_users(self, username):
         if not username:
             raise ValueError("nom utilisateur obligatoire")
@@ -15,5 +17,7 @@ class UserManager:
 
     def count_users(self):
         return len(self.users)
+    
+    
 def count_total_users(users):
     return len(users)
