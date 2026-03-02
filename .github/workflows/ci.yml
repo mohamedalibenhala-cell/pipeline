@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: recuperer code
-        uses: actions/checkout
+        uses: actions/checkout@v4
       - name: Set up python
-        uses: actions/setup-python
+        uses: actions/setup-python@v5
         with:
           Python-version: "3.11"
       - name: installer les dependencies 
