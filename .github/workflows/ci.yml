@@ -1,28 +1,54 @@
-name: pipeline simple
+name: CI Pipeline Multi-Jobs
+
 on:
   push:
-    branches: 
-      -main
+    branches: [ main ]
   pull_request:
-    branches:
-      -main
+    branches: [ main ]
   workflow_dispatch:
+
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: recuperer code
-        uses: actions/checkout@v4
-      - name: Set up python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          Python-version: "3.11"
-      - name: installer les dependencies 
-        run: pip install -r requirements.txt
-      - name: lint le code
+          python-version: '3.11'
+      - name: Installer flake8
+        run: pip install flake8
+      - name: Executer lint
         run: |
-          flake8 app --count --select=E9,F63,F7,F82,F841 --show-source --statistics
-          flake8 app --count --max-complexity=10 --max-line-length=127 --statistics
-          flake8 tests --count --max-line-length=127 --statistics
-      - name: lancer les tests
-        run: PYTHONPATH=. pytest tests/ -v --cov=app
+          flake8 app/ tests/ --count --max-line-length=127 --statistics
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint 
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: |
+          pip install -e .
+      - name: Executer pytest avec couverture
+        run: pytest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test 
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Installer l'outil de build
+        run: pip install build
+      - name: Générer le package Python (sdist et wheel)
+        run: python -m build
+      - name: Stocker le résultat (Artefact)
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-dist
+          path: dist/
